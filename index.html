@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>[Your Brand] · English placement test</title>
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><a class="brand" href="index.html">[Your Brand]</a><span class="tools"><select id="lang" aria-label="Language / Dil / اللغة / زبان"><option value="en">English</option><option value="tr">Türkçe</option><option value="ar">العربية</option><option value="fa">فارسی</option></select><span id="timer" hidden></span></span></header>
+<main id="app">
+
+<section id="s-intro" class="split">
+ <div class="side">
+  <p class="eyebrow" data-i18n="eyebrow">Placement test · about 45 minutes</p>
+  <h1><span data-i18n="h1a">Where is your English</span> <span class="mark" data-i18n="h1b">right now?</span></h1>
+  <p class="lead" data-i18n="lead">Six short parts, then I read your writing and listen to your voice myself. No scores from a machine.</p>
+  <ol class="steps">
+   <li><div><b data-i18n="st1a">Take the test.</b> <span data-i18n="st1b">Grammar, vocabulary, listening, reading, writing, speaking.</span></div></li>
+   <li><div><b data-i18n="st2a">I send you your level</b> <span data-i18n="st2b">by WhatsApp or email, usually within a day.</span></div></li>
+   <li><div><b data-i18n="st3a">Pick a first lesson,</b> <span data-i18n="st3b">40 minutes, at a time that suits your time zone.</span></div></li>
+  </ol>
+  <p class="small"><span data-i18n="tips">Use headphones and a quiet room.</span> <a href="resume.html" data-i18n="aboutLink">About your teacher</a></p>
+ </div>
+ <form id="f-start" class="sheet" novalidate>
+  <h2 data-i18n="before">Before we start</h2>
+  <label><span data-i18n="lName">Full name</span><input id="name" required maxlength="80" autocomplete="name"></label>
+  <label><span data-i18n="lEmail">Email</span><input id="email" type="email" required maxlength="120" autocomplete="email"></label>
+  <label><span data-i18n="lPhone">WhatsApp number</span> <span class="hint" data-i18n="hPhone">with country code, e.g. +31 6 1234 5678</span><input id="phone" type="tel" required maxlength="25" autocomplete="tel"></label>
+  <label><span data-i18n="lAge">Age</span><input id="age" type="number" min="13" max="99" required inputmode="numeric"></label>
+  <label id="guardian-row" hidden class="check"><input type="checkbox" id="guardian"> <span data-i18n="guardian">I am the parent or guardian and I consent to this student taking the test and recording their voice.</span></label>
+  <label class="check"><input type="checkbox" id="consent" required> <span><span data-i18n="consent">My answers, number and voice recordings may be stored privately by my teacher for up to 90 days to assess my level and arrange lessons.</span> <a href="#privacy" data-i18n="privLink">Privacy notice</a></span></label>
+  <label class="hp">Leave this empty<input id="hp" tabindex="-1" autocomplete="off"></label>
+  <p id="err-start" class="err" role="alert"></p>
+  <button class="btn" type="submit" data-i18n="start">Start the test</button>
+ </form>
+</section>
+
+<section id="s-test" hidden class="narrow">
+ <p id="progress" class="stamp"></p>
+ <h2 id="sec-title"></h2>
+ <div id="sec-body"></div>
+ <div class="nav"><button class="btn ghost" id="prev" data-i18n="back">Back</button><button class="btn" id="next" data-i18n="next">Next</button></div>
+ <p id="err-test" class="err" role="alert"></p>
+</section>
+
+<section id="s-done" hidden class="narrow">
+ <p class="eyebrow" data-i18n="doneEy">Test received</p>
+ <h2 data-i18n="doneH">Thank you. I'll take it from here.</h2>
+ <p class="lead" data-i18n="doneP">I'll read your writing and listen to your recordings, then message you your level. You can already see the courses and book your first lesson.</p>
+ <button class="btn" id="to-book" data-i18n="toBook">See courses and book</button>
+</section>
+
+<section id="s-book" hidden class="narrow">
+ <p class="eyebrow" data-i18n="bookEy">One first lesson per student</p>
+ <h2 data-i18n="bookH1">Courses</h2>
+ <div id="pricing" class="prices"></div>
+ <h2><span data-i18n="bookH2">Pick your first lesson</span> <span class="hint" data-i18n="hMin">40 minutes</span></h2>
+ <p id="tzinfo" class="small"></p>
+ <div id="slots"></div>
+ <div id="confirm" hidden class="sheet"><p id="confirm-t"></p><button class="btn" id="confirm-b" data-i18n="confirmB">Confirm booking</button> <button class="btn ghost" id="confirm-c" data-i18n="confirmC">Choose another</button></div>
+ <p id="err-book" class="err" role="alert"></p>
+ <p id="booked" class="ok" role="status"></p>
+</section>
+</main>
+<footer><h2 id="privacy" data-i18n="privH">Privacy notice</h2><p data-i18n="privP">Collected: name, email, WhatsApp number, age, answers, voice recordings, time zone. Purpose: assessing your level, contacting you and scheduling your lesson. Stored privately in the teacher's Google account; recordings deleted after 90 days. Not sold or shared. To see or delete your data, email [your@email.com]. [Have this reviewed for your jurisdiction.]</p></footer>
+<script src="i18n.js" defer></script>
+<script src="app.js" defer></script>
+</body></html>
