@@ -1,5 +1,5 @@
 'use strict';
-const API='PASTE_APPS_SCRIPT_WEB_APP_URL', TEST_MIN=45, MAX_PLAYS=2;
+const API='https://script.google.com/macros/s/AKfycbw-LK3MI_j0CQRiArzDwy-e-nfpZdN2Sn1dLhgTfmt-yxXc3inKuljEy9U3IIvfKZPdrQ/exec', TEST_MIN=45, MAX_PLAYS=2;
 const $=id=>document.getElementById(id);
 // ---- EDIT QUESTIONS HERE (no answer key is stored in the browser; you grade manually) ----
 const SECTIONS=[
