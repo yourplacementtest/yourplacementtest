@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>[Your Brand] · English Placement Test</title>
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><strong>[Your Brand]</strong><span id="timer" hidden aria-live="off"></span></header>
+<main id="app">
+
+<section id="s-intro">
+ <h1>Find your English level</h1>
+ <p class="lead">Take a free placement test (about 45 minutes). I will review your writing and speaking personally and message you with your level. Afterwards you can see course prices and book your first 40-minute session.</p>
+ <ul class="meta"><li>Grammar · Vocabulary · Listening · Reading · Writing · Speaking</li><li>You need a quiet place, headphones and a microphone</li><li>One test and one first session per student</li></ul>
+ <details><summary>About me</summary><p>[Your short bio. Full resume coming soon.]</p><p><a href="resume.html">View my resume</a></p></details>
+ <form id="f-start" novalidate>
+  <label>Full name<input id="name" required maxlength="80" autocomplete="name"></label>
+  <label>Email<input id="email" type="email" required maxlength="120" autocomplete="email"></label>
+  <label>Age<input id="age" type="number" min="13" max="99" required inputmode="numeric"></label>
+  <label id="guardian-row" hidden class="check"><input type="checkbox" id="guardian"> I am the parent or guardian and I consent to this student taking the test and recording their voice.</label>
+  <label class="check"><input type="checkbox" id="consent" required> I agree that my answers and voice recordings are stored privately by my teacher for up to 90 days to assess my level and arrange lessons. I can ask for deletion any time.</label>
+  <label class="hp">Leave this empty<input id="hp" tabindex="-1" autocomplete="off"></label>
+  <p id="err-start" class="err" role="alert"></p>
+  <button class="btn" type="submit">Start the test</button>
+ </form>
+</section>
+
+<section id="s-test" hidden>
+ <p id="progress" class="prog"></p>
+ <h2 id="sec-title"></h2>
+ <div id="sec-body"></div>
+ <div class="nav"><button class="btn ghost" id="prev">Back</button><button class="btn" id="next">Next</button></div>
+ <p id="err-test" class="err" role="alert"></p>
+</section>
+
+<section id="s-done" hidden>
+ <h2>Thank you!</h2>
+ <p class="lead">Your test was sent. I will review your writing and speaking and message you with your level by email.</p>
+ <p>You can already see the courses and book your first session.</p>
+ <button class="btn" id="to-book">See courses and book</button>
+</section>
+
+<section id="s-book" hidden>
+ <h2>Courses and first session</h2>
+ <div id="pricing" class="card"></div>
+ <h2>Choose your first session (40 min)</h2>
+ <p id="tzinfo" class="lead"></p>
+ <div id="slots" class="slots"></div>
+ <p id="err-book" class="err" role="alert"></p>
+ <p id="booked" class="ok" role="status"></p>
+</section>
+</main>
+<footer><p><a href="#privacy">Privacy notice</a>. Your data is stored privately and never sold or shared. Questions or problems loading this page? [your@email.com]</p><h2 id="privacy">Privacy notice</h2><p>Collected: name, email, age, answers, voice recordings, time zone. Purpose: assessing your level and scheduling your lesson. Stored privately in the teacher's Google account, recordings deleted after 90 days. Not sold or shared. To access or delete your data, email [your@email.com]. [Have this reviewed for your jurisdiction.]</p></footer>
+<script src="app.js" defer></script>
+</body></html>
