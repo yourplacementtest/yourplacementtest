@@ -119,3 +119,5 @@ main.wide{max-width:66rem}
 .sec-writing textarea{min-height:18rem;padding:.2rem .6rem .2rem 4rem;border:1px solid var(--line);background:linear-gradient(90deg,transparent 3.1rem,var(--th) 3.1rem,var(--th) 3.18rem,transparent 3.18rem),linear-gradient(transparent 1.95rem,var(--line) 1.95rem) 0 0/100% 2rem local}
 .rcard{border:2px solid var(--th);padding:1rem 1.2rem;margin:1.1rem 0;background:var(--tht)}.rcard .qtext{margin:.2rem 0 .8rem}
 .rcard .btn:before{content:"\25CF";margin-inline-end:.5rem}.rcard .btn{border-radius:2rem}
+
+.linkbtn{background:none;border:0;color:var(--th);text-decoration:underline;font:inherit;cursor:pointer;padding:.4rem 0;min-height:44px}
