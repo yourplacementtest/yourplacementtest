@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Demo session · [Your Brand]</title>
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><a class="brand" href="home.html">[Your Brand]</a><span class="tools"><select id="lang" aria-label="Language / Dil / اللغة / زبان"><option value="en">English</option><option value="tr">Türkçe</option><option value="ar">العربية</option><option value="fa">فارسی</option></select></span></header>
+<main class="narrow">
+ <p class="eyebrow" data-i18n="bookEy">One demo session per student</p>
+ <h1 data-i18n="bookH2">Pick a time for your demo session</h1>
+ <p class="small" data-i18n="demoNote">Prices and course details are discussed after your demo session.</p>
+ <p id="tzinfo" class="small"></p>
+ <div id="slots"></div>
+ <div id="confirm" hidden class="sheet"><p id="confirm-t"></p><button class="btn" id="confirm-b" data-i18n="confirmB">Confirm booking</button> <button class="btn ghost" id="confirm-c" data-i18n="confirmC">Choose another</button></div>
+ <p id="err-book" class="err" role="alert"></p>
+ <p id="booked" class="ok" role="status"></p>
+ <a id="to-start" class="btn" href="start.html" hidden="" data-i18n="homeCta">Take the placement test</a></main>
+<script src="config.js" defer></script><script src="i18n.js" defer></script><script src="book.js" defer></script>
+</body></html>
