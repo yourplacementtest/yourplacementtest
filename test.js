@@ -34,12 +34,15 @@ function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qOf',r.i,r
  if(q.p)L1.append(ltr(el('div','passage',q.p)));
  if(sec==='listening'&&!q.a)R1.append(el('p','err',T('audioErr')));
  if(q.a){const box=el('div','player'),eq=el('span','eq'),a=el('audio'),n=el('p','small'),k=q.id;for(let i=0;i<9;i++)eq.append(el('i'));
-  a.src='audio/'+encodeURIComponent(q.a);a.addEventListener('error',()=>{n.className='err';n.textContent=T('audioErr')});a.controls=true;plays[k]=plays[k]||0;let busy=false;const upd=()=>n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);upd();
+  a.src=AUDIO_DIR+q.a.split('/').map(encodeURIComponent).join('/');a.addEventListener('error',()=>{n.className='err';n.dir='ltr';n.textContent=T('audioErr')+' ['+a.getAttribute('src')+']'});a.controls=true;plays[k]=plays[k]||0;let busy=false;const upd=()=>n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);upd();
   a.addEventListener('play',()=>{if(busy)return;if(plays[k]>=MAX_PLAYS){a.pause();return}busy=true;plays[k]++;upd()});
   a.addEventListener('ended',()=>{busy=false;if(plays[k]>=MAX_PLAYS){a.controls=false;n.textContent=T('noPlays')}});box.append(eq,a);R1.append(box,n)}
  R1.append(ltr(el('p','qtext',q.q)));
- let nb;const ops=el('div','opts');q.o.forEach((o,k)=>{const l=ltr(el('label','opt')),i=el('input');i.type='radio';i.name='o';i.checked=sel===o;i.onchange=()=>{sel=o;nb.textContent=T('next')};l.append(i,el('b','let','ABCD'[k]),el('span',null,o));ops.append(l)});
- R1.append(ops,el('p','small',T('skipHint')));stage.append(body);
+ let nb;const inputs=[],clr=el('button','linkbtn',T('clear'));clr.type='button';clr.hidden=sel==null;
+ const setSel=v=>{sel=v;inputs.forEach(x=>x.checked=v!=null&&x.value===v);clr.hidden=v==null;if(nb)nb.textContent=T(v==null?'skip':'next')};
+ clr.onclick=()=>setSel(null);
+ const ops=el('div','opts');q.o.forEach((o,k)=>{const l=ltr(el('label','opt')),i=el('input');i.type='radio';i.name='o';i.value=o;i.checked=sel===o;i.onclick=()=>setSel(sel===o?null:o);inputs.push(i);l.append(i,el('b','let','ABCD'[k]),el('span',null,o));ops.append(l)});
+ R1.append(ops,el('p','small',T('skipHint')),clr);stage.append(body);
  nb=foot(sel==null?'skip':'next',b=>{b.disabled=true;load(sel==null?{id:q.id,skip:true}:{id:q.id,text:sel})})}
 function showWriting(){phase='w';const w=openData.writing;frame('writing',T('wrNote',w.min,w.max));stage.append(ltr(el('p','qtext',w.q)));
  const t=ltr(el('textarea')),c=el('p','small');t.value=writ.text;t.setAttribute('aria-label',T('ans'));t.maxLength=3000;
