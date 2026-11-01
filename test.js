@@ -32,30 +32,34 @@ async function load(ans){phase='l';plain('loading');
 function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qOf',r.i,r.total));updBar(sec,(r.i-1)/r.total);
  const body=el('div',sec==='reading'?'split2':'qbody'),L1=sec==='reading'?el('div'):body,R1=sec==='reading'?el('div'):body;if(sec==='reading')body.append(L1,R1);
  if(q.p)L1.append(ltr(el('div','passage',q.p)));
- if(/^audio\/[\w.\-]+\.mp3$/.test(q.a)){const box=el('div','player'),eq=el('span','eq'),a=el('audio'),n=el('p','small'),k=q.id;for(let i=0;i<9;i++)eq.append(el('i'));
-  a.src=q.a;a.controls=true;plays[k]=plays[k]||0;let busy=false;const upd=()=>n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);upd();
+ if(sec==='listening'&&!q.a)R1.append(el('p','err',T('audioErr')));
+ if(q.a){const box=el('div','player'),eq=el('span','eq'),a=el('audio'),n=el('p','small'),k=q.id;for(let i=0;i<9;i++)eq.append(el('i'));
+  a.src='audio/'+encodeURIComponent(q.a);a.addEventListener('error',()=>{n.className='err';n.textContent=T('audioErr')});a.controls=true;plays[k]=plays[k]||0;let busy=false;const upd=()=>n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);upd();
   a.addEventListener('play',()=>{if(busy)return;if(plays[k]>=MAX_PLAYS){a.pause();return}busy=true;plays[k]++;upd()});
   a.addEventListener('ended',()=>{busy=false;if(plays[k]>=MAX_PLAYS){a.controls=false;n.textContent=T('noPlays')}});box.append(eq,a);R1.append(box,n)}
  R1.append(ltr(el('p','qtext',q.q)));
- const ops=el('div','opts');q.o.forEach((o,k)=>{const l=ltr(el('label','opt')),i=el('input');i.type='radio';i.name='o';i.checked=sel===o;i.onchange=()=>sel=o;l.append(i,el('b','let','ABCD'[k]),el('span',null,o));ops.append(l)});
- R1.append(ops);stage.append(body);
- foot('next',(b,e)=>{if(sel==null)return e.textContent=T('errPick');b.disabled=true;load({id:q.id,text:sel})})}
+ let nb;const ops=el('div','opts');q.o.forEach((o,k)=>{const l=ltr(el('label','opt')),i=el('input');i.type='radio';i.name='o';i.checked=sel===o;i.onchange=()=>{sel=o;nb.textContent=T('next')};l.append(i,el('b','let','ABCD'[k]),el('span',null,o));ops.append(l)});
+ R1.append(ops,el('p','small',T('skipHint')));stage.append(body);
+ nb=foot(sel==null?'skip':'next',b=>{b.disabled=true;load(sel==null?{id:q.id,skip:true}:{id:q.id,text:sel})})}
 function showWriting(){phase='w';const w=openData.writing;frame('writing',T('wrNote',w.min,w.max));stage.append(ltr(el('p','qtext',w.q)));
  const t=ltr(el('textarea')),c=el('p','small');t.value=writ.text;t.setAttribute('aria-label',T('ans'));t.maxLength=3000;
  const u=()=>{writ.text=t.value;c.textContent=T('words',wc(t.value),w.min,w.max)};t.oninput=u;u();stage.append(t,c);
  foot('next',(b,e)=>{const n=wc(writ.text);if(n<w.min||n>w.max)return e.textContent=T('errWords',w.min,w.max);toSpeaking()})}
-function showSpeaking(){const sp=openData.speaking;phase='s';frame('speaking',T('spNote',sp[0].max));
+function showSpeaking(){const sp=openData.speaking;phase='s';frame('speaking',T('spNote',sp[0].max,MAX_RERECORDS));
  sp.forEach((p,i)=>{const w=el('div','rcard');w.append(el('p','small',T('qOf',i+1,sp.length)),ltr(el('p','qtext',p.q)));recorder(w,i,p.max);stage.append(w)});
  foot('finish',(b,e)=>{if(sp.some((_,i)=>!aud[i]))return e.textContent=T('errRec');b.disabled=true;finish()})}
-function recorder(w,k,max){const row=el('div','rec'),btn=el('button','btn',T(aud[k]?'rerec':'rec')),st2=el('span','lead',aud[k]?T('recd'):''),pl=el('audio');btn.type='button';pl.controls=true;if(aud[k])pl.src=URL.createObjectURL(aud[k]);else pl.hidden=true;
+const rr={}; // recordings made per prompt: 1 first take + MAX_RERECORDS re-records
+function recorder(w,k,max){const row=el('div','rec'),btn=el('button','btn',T(aud[k]?'rerec':'rec')),st2=el('span','lead',aud[k]?T('recd'):''),pl=el('audio'),left=el('p','small');btn.type='button';pl.controls=true;if(aud[k])pl.src=URL.createObjectURL(aud[k]);else pl.hidden=true;
+ const lft=()=>1+MAX_RERECORDS-(rr[k]||0);
+ const upd=()=>{if(!rr[k]){left.textContent='';return}if(lft()<=0){btn.disabled=true;left.textContent=T('rrNone')}else left.textContent=T('rrLeft',lft())};upd();
  let mr,ch=[],to;const stop=()=>{if(mr&&mr.state==='recording')mr.stop()};
- btn.onclick=async()=>{if(mr&&mr.state==='recording')return stop();
+ btn.onclick=async()=>{if(mr&&mr.state==='recording')return stop();if(lft()<=0)return;
   try{const s=await navigator.mediaDevices.getUserMedia({audio:true});mr=new MediaRecorder(s,{audioBitsPerSecond:32000});ch=[];
    mr.ondataavailable=e=>ch.push(e.data);
-   mr.onstop=()=>{clearTimeout(to);s.getTracks().forEach(t=>t.stop());aud[k]=new Blob(ch,{type:mr.mimeType});pl.src=URL.createObjectURL(aud[k]);pl.hidden=false;btn.textContent=T('rerec');st2.textContent=T('recd')};
+   mr.onstop=()=>{clearTimeout(to);s.getTracks().forEach(t=>t.stop());aud[k]=new Blob(ch,{type:mr.mimeType});rr[k]=(rr[k]||0)+1;pl.src=URL.createObjectURL(aud[k]);pl.hidden=false;btn.textContent=T('rerec');st2.textContent=T('recd');upd()};
    mr.start();btn.textContent=T('stop');st2.textContent=T('recing',max);to=setTimeout(stop,max*1000)}
   catch(e){st2.textContent=T('mic')}};
- row.append(btn,st2,pl);w.append(row)}
+ row.append(btn,st2,pl);w.append(row,left)}
 async function finish(){if(sent)return;sent=true;clearInterval(tick);stage.replaceChildren(el('p','lead',T('sending')));
  try{const sp=[];if(openData)for(const [i,p] of openData.speaking.entries())if(aud[i])sp.push({id:p.id,mime:aud[i].type,data:await b64(aud[i])});
   const r=await post({action:'finish',token:tk,writing:openData&&openData.writing?{id:openData.writing.id,text:writ.text}:null,speaking:sp});
