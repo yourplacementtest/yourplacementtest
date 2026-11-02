@@ -3,7 +3,7 @@ const tk=sessionStorage.getItem('tk');
 if(sessionStorage.getItem('done'))location.replace('book.html');
 else if(!tk||!/^http/.test(API))location.replace('start.html');
 const ORDER=['grammar','vocab','listening','reading','writing','speaking'];
-let st=null,lastR=null,openData=null,phase='i',sel=null,tick=null,sent=false,curSec='',introArgs=null;
+let st=null,lastR=null,openData=null,phase='i',sel=null,selK=null,tick=null,sent=false,curSec='',introArgs=null,audioBusy=false,curAudio=null;
 try{st=JSON.parse(sessionStorage.getItem('st')||'null')}catch(e){}
 const plays={},aud={},writ={text:''},stage=$('stage');
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -12,9 +12,10 @@ const ltr=e=>{e.dir='ltr';return e};
 const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(',')[1]);f.readAsDataURL(b)});
 function updBar(sec,f){const n=ORDER.indexOf(sec);document.querySelectorAll('#secbar i').forEach((e,k)=>e.style.setProperty('--p',(k<n?100:k===n?Math.round((f||0)*100):0)+'%'))}
 // every section has its own colour theme (body[data-sec]) and header band
-function frame(sec,sub){stage.replaceChildren();stage.className='sec-'+sec;document.body.dataset.sec=sec;$('app').classList.toggle('wide',sec==='reading');updBar(sec,0);
+function stopAudio(){audioBusy=false;if(curAudio){curAudio.pause();curAudio=null}}
+function frame(sec,sub){stopAudio();stage.replaceChildren();stage.className='sec-'+sec;document.body.dataset.sec=sec;$('app').classList.toggle('wide',sec==='reading');updBar(sec,0);
  const b=el('div','band'),d=el('div');b.append(el('span','no',String(ORDER.indexOf(sec)+1).padStart(2,'0')));d.append(el('h2',null,T('sec_'+sec)));if(sub)d.append(el('p','small',sub));b.append(d);stage.append(b)}
-function plain(key){stage.replaceChildren(el('h2',null,T(key)))}
+function plain(key){stopAudio();stage.replaceChildren(el('h2',null,T(key)))}
 function foot(label,fn){const e=el('p','err'),n=el('div','nav'),b=el('button','btn',T(label));e.setAttribute('role','alert');b.type='button';b.onclick=()=>{e.textContent='';fn(b,e)};n.append(el('span'),b);stage.append(e,n);return b}
 function startTimer(){if(tick)return;const end=Date.now()+TEST_MINUTES*6e4,t=$('timer');t.hidden=false;
  tick=setInterval(()=>{const l=Math.max(0,end-Date.now());t.textContent=Math.floor(l/6e4)+':'+String(Math.floor(l/1e3)%60).padStart(2,'0');if(!l){clearInterval(tick);stage.replaceChildren(el('p','lead',T('timeUp')));finish()}},1000)}
@@ -26,23 +27,31 @@ const toSpeaking=()=>openData.speaking.length?secIntro('speaking',0,showSpeaking
 async function load(ans){phase='l';plain('loading');
  try{const r=await post({action:'next',token:tk,state:st,answer:ans});if(!r.ok)throw 0;st=r.state;sessionStorage.setItem('st',JSON.stringify(st));
   if(r.phase==='open'){openData=r;writ.text='';return toWriting()}
-  r.q.o=shuf(r.q.o);lastR=r;sel=null;
+  r.q.o=shuf(r.q.o);lastR=r;sel=null;selK=null;
   if(r.sec!==curSec)secIntro(r.sec,r.total,showQ);else showQ()}
  catch(e){plain('eTest');foot('begin',()=>load(ans))}}
 function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qOf',r.i,r.total));updBar(sec,(r.i-1)/r.total);
  const body=el('div',sec==='reading'?'split2':'qbody'),L1=sec==='reading'?el('div'):body,R1=sec==='reading'?el('div'):body;if(sec==='reading')body.append(L1,R1);
  if(q.p)L1.append(ltr(el('div','passage',q.p)));
  if(sec==='listening'&&!q.a)R1.append(el('p','err',T('audioErr')));
- if(q.a){const box=el('div','player'),eq=el('span','eq'),a=el('audio'),n=el('p','small'),k=q.id;for(let i=0;i<9;i++)eq.append(el('i'));
-  a.src=AUDIO_DIR+q.a.split('/').map(encodeURIComponent).join('/');a.addEventListener('error',()=>{n.className='err';n.dir='ltr';n.textContent=T('audioErr')+' ['+a.getAttribute('src')+']'});a.controls=true;plays[k]=plays[k]||0;let busy=false;const upd=()=>n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);upd();
-  a.addEventListener('play',()=>{if(busy)return;if(plays[k]>=MAX_PLAYS){a.pause();return}busy=true;plays[k]++;upd()});
-  a.addEventListener('ended',()=>{busy=false;if(plays[k]>=MAX_PLAYS){a.controls=false;n.textContent=T('noPlays')}});box.append(eq,a);R1.append(box,n)}
+ if(q.a){const box=el('div','player'),eq=el('span','eq'),a=el('audio'),n=el('p','small'),bar=el('span','pbar'),pb=el('button','btn'),k=q.id;let last=0;for(let i=0;i<9;i++)eq.append(el('i'));
+  pb.type='button';a.preload='auto';a.src=AUDIO_DIR+q.a.split('/').map(encodeURIComponent).join('/');plays[k]=plays[k]||0;curAudio=a;
+  const upd=()=>{n.className='small';n.textContent=T('listenNote')+' '+T('plays',plays[k],MAX_PLAYS);pb.textContent=plays[k]>=MAX_PLAYS?T('noPlays'):T(plays[k]?'playAgain':'play');pb.disabled=plays[k]>=MAX_PLAYS||audioBusy};upd();
+  const fail=()=>{if(audioBusy)plays[k]=Math.max(0,plays[k]-1);audioBusy=false;box.classList.remove('live');n.className='err';n.dir='ltr';n.textContent=T('audioErr')+' ['+a.getAttribute('src')+']';pb.disabled=true};
+  pb.onclick=()=>{if(audioBusy||plays[k]>=MAX_PLAYS)return;plays[k]++;audioBusy=true;box.classList.add('live');pb.disabled=true;pb.textContent=T('playing');a.play().catch(fail)};
+  a.addEventListener('error',fail);
+  a.addEventListener('timeupdate',()=>{last=a.currentTime;if(a.duration)bar.style.setProperty('--w',(100*a.currentTime/a.duration)+'%')});
+  a.addEventListener('seeking',()=>{if(Math.abs(a.currentTime-last)>1.5)a.currentTime=last}); // no skipping
+  a.addEventListener('pause',()=>{if(audioBusy&&!a.ended)a.play().catch(()=>{})});              // no pausing
+  a.addEventListener('ended',()=>{audioBusy=false;last=0;a.currentTime=0;bar.style.setProperty('--w','0%');box.classList.remove('live');upd()});
+  box.append(eq,bar,pb,a);R1.append(box,n)}
  R1.append(ltr(el('p','qtext',q.q)));
- let nb;const inputs=[],clr=el('button','linkbtn',T('clear'));clr.type='button';clr.hidden=sel==null;
- const setSel=v=>{sel=v;inputs.forEach(x=>x.checked=v!=null&&x.value===v);clr.hidden=v==null;if(nb)nb.textContent=T(v==null?'skip':'next')};
+ let nb;const btns=[],clr=el('button','linkbtn',T('clear'));clr.type='button';
+ const setSel=k=>{selK=k;sel=k==null?null:q.o[k];btns.forEach((b,j)=>{b.classList.toggle('on',j===k);b.setAttribute('aria-checked',j===k?'true':'false')});clr.hidden=k==null;if(nb)nb.textContent=T(k==null?'skip':'next')};
  clr.onclick=()=>setSel(null);
- const ops=el('div','opts');q.o.forEach((o,k)=>{const l=ltr(el('label','opt')),i=el('input');i.type='radio';i.name='o';i.value=o;i.checked=sel===o;i.onclick=()=>setSel(sel===o?null:o);inputs.push(i);l.append(i,el('b','let','ABCD'[k]),el('span',null,o));ops.append(l)});
- R1.append(ops,el('p','small',T('skipHint')),clr);stage.append(body);
+ const ops=el('div','opts');ops.setAttribute('role','radiogroup');
+ q.o.forEach((o,k)=>{const b=ltr(el('button','opt'));b.type='button';b.setAttribute('role','radio');b.onclick=()=>setSel(selK===k?null:k);b.append(el('b','let','ABCD'[k]),el('span',null,o));btns.push(b);ops.append(b)});
+ R1.append(ops,el('p','small',T('skipHint')),clr);setSel(selK);stage.append(body);
  nb=foot(sel==null?'skip':'next',b=>{b.disabled=true;load(sel==null?{id:q.id,skip:true}:{id:q.id,text:sel})})}
 function showWriting(){phase='w';const w=openData.writing;frame('writing',T('wrNote',w.min,w.max));stage.append(ltr(el('p','qtext',w.q)));
  const t=ltr(el('textarea')),c=el('p','small');t.value=writ.text;t.setAttribute('aria-label',T('ans'));t.maxLength=3000;
@@ -69,5 +78,5 @@ async function finish(){if(sent)return;sent=true;clearInterval(tick);stage.repla
   if(!r.ok)throw 0;sessionStorage.setItem('done','1');location.href='book.html'}
  catch(e){sent=false;stage.replaceChildren(el('p','err',T('sendFail')));foot('finish',()=>finish())}}
 addEventListener('beforeunload',e=>{if(phase!=='i'&&!sent){e.preventDefault();e.returnValue=''}});
-document.addEventListener('langchange',()=>{({i:showIntro,si:()=>introArgs&&secIntro(...introArgs),q:()=>lastR&&showQ(),w:showWriting,s:showSpeaking})[phase]?.()});
+document.addEventListener('langchange',()=>{({i:showIntro,si:()=>introArgs&&secIntro(...introArgs),q:()=>lastR&&!audioBusy&&showQ(),w:showWriting,s:showSpeaking})[phase]?.()});
 initLang($('lang'));
