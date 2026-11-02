@@ -27,7 +27,7 @@ $('wz').addEventListener('submit',async e=>{e.preventDefault();if(busy)return;co
  if(step<ss.length-1){step++;return render()}
  busy=true;$('cont').disabled=true;
  try{const r=await post({action:'begin',user:{name:D.name,age:+D.age,email:D.email,phone:D.phone,guardian:D.guardian,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,lang:L,hp:$('hp').value}});
-  if(!r.ok){if(r.error==='duplicate'){busy=false;$('cont').disabled=false;return $('err').textContent=T('eDup')}throw 0}sessionStorage.setItem('tk',r.token);sessionStorage.removeItem('st');sessionStorage.removeItem('done');location.href='test.html'}
+  if(!r.ok){if(r.error==='duplicate'){busy=false;$('cont').disabled=false;return $('err').textContent=T('eDup')}throw 0}sessionStorage.setItem('tk',r.token);sessionStorage.removeItem('st');sessionStorage.removeItem('done');sessionStorage.removeItem('booked');location.href='test.html'}
  catch(x){busy=false;$('cont').disabled=false;$('err').textContent=T('eNet')}});
 $('back').onclick=()=>{collect();if(step>0){step--;render()}else location.href='home.html'};
 document.addEventListener('langchange',()=>{if(!busy){collect();render()}});
