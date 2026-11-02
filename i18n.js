@@ -103,3 +103,8 @@ Object.assign(I18N.ar,{skip:'لا أعرف',skipHint:'لست متأكدًا؟ ل
 Object.assign(I18N.fa,{skip:'نمی‌دانم',skipHint:'مطمئن نیستید؟ لازم نیست حدس بزنید. روی «نمی‌دانم» بزنید.',audioErr:'فایل صوتی بارگذاری نشد. برای ادامه روی «نمی‌دانم» بزنید و به معلم خود خبر دهید.',rrLeft:'دفعات باقی‌مانده برای ضبط دوباره: {0}',rrNone:'امکان ضبط دوباره تمام شد',spNote:'حداکثر در {0} ثانیه پاسخ دهید. هر پاسخ را حداکثر {1} بار می‌توانید دوباره ضبط کنید.'});
 
 Object.assign(I18N.en,{clear:'Clear my choice'});Object.assign(I18N.tr,{clear:'Seçimimi temizle'});Object.assign(I18N.ar,{clear:'مسح اختياري'});Object.assign(I18N.fa,{clear:'پاک کردن انتخاب'});
+
+Object.assign(I18N.en,{play:'Play',playAgain:'Play again',playing:'Playing…',listenNote:'You can play the audio twice. You cannot pause or skip.'});
+Object.assign(I18N.tr,{play:'Oynat',playAgain:'Tekrar oynat',playing:'Oynatılıyor…',listenNote:'Sesi iki kez dinleyebilirsiniz. Duraklatamaz veya ileri saramazsınız.'});
+Object.assign(I18N.ar,{play:'تشغيل',playAgain:'تشغيل مرة أخرى',playing:'جارٍ التشغيل…',listenNote:'يمكنك تشغيل التسجيل مرتين. لا يمكن إيقافه مؤقتًا أو التقديم فيه.'});
+Object.assign(I18N.fa,{play:'پخش',playAgain:'پخش دوباره',playing:'در حال پخش…',listenNote:'می‌توانید فایل صوتی را دو بار پخش کنید. امکان توقف یا جلو بردن وجود ندارد.'});
