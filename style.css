@@ -121,3 +121,11 @@ main.wide{max-width:66rem}
 .rcard .btn:before{content:"\25CF";margin-inline-end:.5rem}.rcard .btn{border-radius:2rem}
 
 .linkbtn{background:none;border:0;color:var(--th);text-decoration:underline;font:inherit;cursor:pointer;padding:.4rem 0;min-height:44px}
+
+/* option buttons (state kept in code, not native radios) + custom audio player */
+button.opt{width:100%;font:inherit;color:var(--ink);background:transparent;text-align:start}
+#stage .opt.on{border-color:var(--th);background:var(--tht)}#stage .opt.on .let{background:var(--th);color:var(--thi)}
+#stage .opt:focus-visible{outline:3px solid var(--th);outline-offset:2px}
+.pbar{flex:1;min-width:8rem;height:8px;background:var(--line);position:relative}.pbar:after{content:"";position:absolute;inset:0;width:var(--w,0%);background:var(--th)}
+.eq i{transform-origin:bottom}
+@media(prefers-reduced-motion:no-preference){.live .eq i{animation:eq .7s ease-in-out infinite alternate}.live .eq i:nth-child(2n){animation-delay:.2s}.live .eq i:nth-child(3n){animation-delay:.4s}@keyframes eq{to{transform:scaleY(.35)}}}
