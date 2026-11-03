@@ -13,7 +13,7 @@ const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.sp
 function updBar(sec,f){const n=ORDER.indexOf(sec);document.querySelectorAll('#secbar i').forEach((e,k)=>e.style.setProperty('--p',(k<n?100:k===n?Math.round((f||0)*100):0)+'%'))}
 // every section has its own colour theme (body[data-sec]) and header band
 function stopAudio(){audioBusy=false;if(curAudio){curAudio.pause();curAudio=null}}
-function frame(sec,sub){stopAudio();stage.replaceChildren();stage.className='sec-'+sec;document.body.dataset.sec=sec;$('app').classList.toggle('wide',sec==='reading');updBar(sec,0);
+function frame(sec,sub){stopAudio();stage.replaceChildren();stage.className='sec-'+sec;document.body.dataset.sec=sec;updBar(sec,0);
  const b=el('div','band'),d=el('div');b.append(el('span','no',String(ORDER.indexOf(sec)+1).padStart(2,'0')));d.append(el('h2',null,T('sec_'+sec)));if(sub)d.append(el('p','small',sub));b.append(d);stage.append(b)}
 function plain(key){stopAudio();stage.replaceChildren(el('h2',null,T(key)))}
 function foot(label,fn){const e=el('p','err'),n=el('div','nav'),b=el('button','btn',T(label));e.setAttribute('role','alert');b.type='button';b.onclick=()=>{e.textContent='';fn(b,e)};n.append(el('span'),b);stage.append(e,n);return b}
@@ -53,11 +53,16 @@ function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qOf',r.i,r
  q.o.forEach((o,k)=>{const b=ltr(el('button','opt'));b.type='button';b.setAttribute('role','radio');b.onclick=()=>setSel(selK===k?null:k);b.append(el('b','let','ABCD'[k]),el('span',null,o));btns.push(b);ops.append(b)});
  R1.append(ops,el('p','small',T('skipHint')),clr);setSel(selK);stage.append(body);
  nb=foot(sel==null?'skip':'next',b=>{b.disabled=true;load(sel==null?{id:q.id,skip:true}:{id:q.id,text:sel})})}
-function showWriting(){phase='w';const w=openData.writing;frame('writing',T('wrNote',w.min,w.max));stage.append(ltr(el('p','qtext',w.q)));
- const t=ltr(el('textarea')),c=el('p','small');t.value=writ.text;t.setAttribute('aria-label',T('ans'));t.maxLength=3000;
- const u=()=>{writ.text=t.value;c.textContent=T('words',wc(t.value),w.min,w.max)};t.oninput=u;u();stage.append(t,c);
+function showWriting(){phase='w';const w=openData.writing;frame('writing',T('part',5,6));stage.append(ltr(el('p','qtext',w.q)));
+ // visual guide: separate Minimum / Maximum chips and a meter that fills from the reading-start side (no "90-150" ranges)
+ const num=n=>{const b=el('bdi',null,String(n));b.dir='ltr';return b},chip=(k,n)=>{const c=el('span','chip');c.append(T(k)+' ',num(n));return c};
+ const g=el('div','wguide'),chips=el('div','wchips'),meter=el('div','meter'),fillb=el('i','fill'),tick=el('i','tick'),got=el('p','wgot'),stat=el('p','wstat');
+ chips.append(chip('wMin',w.min),chip('wMax',w.max));tick.style.setProperty('--m',(100*w.min/w.max)+'%');meter.append(fillb,tick);g.append(chips,meter,got,stat);stage.append(g);
+ const t=ltr(el('textarea'));t.value=writ.text;t.setAttribute('aria-label',T('ans'));t.maxLength=3000;
+ const u=()=>{writ.text=t.value;const n=wc(t.value);fillb.style.setProperty('--w',Math.min(100,100*n/w.max)+'%');meter.className='meter '+(n<w.min?'low':n<=w.max?'good':'over');
+  got.replaceChildren(T('wGot')+': ',num(n));stat.textContent=T(n<w.min?'wShort':n<=w.max?'wGood':'wLong')};t.oninput=u;u();stage.append(t);
  foot('next',(b,e)=>{const n=wc(writ.text);if(n<w.min||n>w.max)return e.textContent=T('errWords',w.min,w.max);toSpeaking()})}
-function showSpeaking(){const sp=openData.speaking;phase='s';frame('speaking',T('spNote',sp[0].max,MAX_RERECORDS));
+function showSpeaking(){const sp=openData.speaking;phase='s';frame('speaking',T('part',6,6));stage.append(el('p','lead',T('spNote',sp[0].max,MAX_RERECORDS)));
  sp.forEach((p,i)=>{const w=el('div','rcard');w.append(el('p','small',T('qOf',i+1,sp.length)),ltr(el('p','qtext',p.q)));recorder(w,i,p.max);stage.append(w)});
  foot('finish',(b,e)=>{if(sp.some((_,i)=>!aud[i]))return e.textContent=T('errRec');b.disabled=true;finish()})}
 const rr={}; // recordings made per prompt: 1 first take + MAX_RERECORDS re-records
