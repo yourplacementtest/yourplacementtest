@@ -19,9 +19,9 @@ function plain(key){stopAudio();stage.replaceChildren(el('h2',null,T(key)))}
 function foot(label,fn){const e=el('p','err'),n=el('div','nav'),b=el('button','btn',T(label));e.setAttribute('role','alert');b.type='button';b.onclick=()=>{e.textContent='';fn(b,e)};n.append(el('span'),b);stage.append(e,n);return b}
 function startTimer(){if(tick)return;const end=Date.now()+TEST_MINUTES*6e4,t=$('timer');t.hidden=false;
  tick=setInterval(()=>{const l=Math.max(0,end-Date.now());t.textContent=Math.floor(l/6e4)+':'+String(Math.floor(l/1e3)%60).padStart(2,'0');if(!l){clearInterval(tick);stage.replaceChildren(el('p','lead',T('timeUp')));finish()}},1000)}
-function showIntro(){phase='i';plain('tIntro');stage.append(el('p',null,T('adaptNote')),el('p','lead',T('tipsTest')));foot('begin',()=>{startTimer();load(null)})}
+function showIntro(){phase='i';plain('tIntro');stage.append(el('p',null,T('adaptNote')),el('p',null,T('limitNote')),el('p','lead',T('tipsTest')));foot('begin',()=>{startTimer();load(null)})}
 function secIntro(sec,total,go){phase='si';introArgs=[sec,total,go];curSec=sec;frame(sec,T('part',ORDER.indexOf(sec)+1,6));
- const c=el('div','intro-card');c.append(el('p',null,T('ins_'+sec)));if(total)c.append(el('p','small',T('nQ',total)));stage.append(c);foot('startSec',()=>go())}
+ const c=el('div','intro-card');c.append(el('p',null,T('ins_'+sec)));if(total)c.append(el('p','small',T('nQmax',total)));stage.append(c);foot('startSec',()=>go())}
 const toWriting=()=>openData.writing?secIntro('writing',0,showWriting):toSpeaking();
 const toSpeaking=()=>openData.speaking.length?secIntro('speaking',0,showSpeaking):finish();
 async function load(ans){phase='l';plain('loading');
@@ -30,7 +30,7 @@ async function load(ans){phase='l';plain('loading');
   r.q.o=shuf(r.q.o);lastR=r;sel=null;selK=null;
   if(r.sec!==curSec)secIntro(r.sec,r.total,showQ);else showQ()}
  catch(e){plain('eTest');foot('begin',()=>load(ans))}}
-function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qOf',r.i,r.total));updBar(sec,(r.i-1)/r.total);
+function showQ(){phase='q';const r=lastR,q=r.q,sec=r.sec;frame(sec,T('qNo',r.i));updBar(sec,(r.i-1)/r.total);
  const body=el('div',sec==='reading'?'split2':'qbody'),L1=sec==='reading'?el('div'):body,R1=sec==='reading'?el('div'):body;if(sec==='reading')body.append(L1,R1);
  if(q.p)L1.append(ltr(el('div','passage',q.p)));
  if(sec==='listening'&&!q.a)R1.append(el('p','err',T('audioErr')));
