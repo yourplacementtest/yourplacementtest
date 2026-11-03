@@ -1,5 +1,5 @@
 'use strict';
-const D={name:'',age:'',guardian:false,email:'',phone:'',pn:'',cc:guess(),consent:false};
+const D={name:'',age:'',guardian:false,email:'',phone:'',pn:'',cc:'',consent:false};
 let step=0,busy=false;
 const steps=()=>['name','age',...(+D.age&&+D.age<18?['guardian']:[]),'email','phone','terms'];
 const HEAD={name:'qName',age:'qAge',guardian:'guardTitle',email:'qEmail',phone:'qPhone',terms:'qTerms'};
@@ -21,7 +21,7 @@ function check(k){const v=($('fld').value||'').trim();
  if(k==='age')return !+v?T('eAge'):+v<13?T('e3'):+v>99?T('eAge'):'';
  if(k==='guardian')return $('fld').checked?'':T('e4');
  if(k==='email')return /^\S+@\S+\.\S+$/.test(v)?'':T('eEmail');
- if(k==='phone'){const p=fullPhone(v);if(!p)return T('e2');D.phone=p;return ''}
+ if(k==='phone'){if(!D.cc&&!v.trim().startsWith('+')){flashFn();return T('eCountry')}const p=fullPhone(v);if(!p)return T('e2');D.phone=p;return ''}
  return $('fld').checked?'':T('e5')}
 $('wz').addEventListener('submit',async e=>{e.preventDefault();if(busy)return;const ss=steps(),er=check(ss[step]);if(er)return $('err').textContent=er;collect();
  if(step<ss.length-1){step++;return render()}
