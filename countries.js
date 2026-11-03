@@ -8,22 +8,31 @@ const emoji=iso=>String.fromCodePoint(...[...iso].map(c=>0x1F1E6+c.charCodeAt(0)
 const fl=iso=>FLAGS_OK?el('span','fl',emoji(iso)):el('span','fl iso',iso);
 const cname=iso=>{try{return new Intl.DisplayNames([L],{type:'region'}).of(iso)||iso}catch(e){return iso}};
 const guess=()=>{const m=(navigator.language||'').match(/-([A-Za-z]{2})$/);const r=m?m[1].toUpperCase():'';return CC.some(c=>c[0]===r)?r:''};
-let wrapRef=null,closePop=()=>{};
+let wrapRef=null,closePop=()=>{},flashFn=()=>{};
 document.addEventListener('click',e=>{if(wrapRef&&!wrapRef.contains(e.target))closePop()});
 function fullPhone(v){const d=v.replace(/\D/g,'');if(v.trim().startsWith('+'))return d.length>=7&&d.length<=15?'+'+d:'';
  const c=CC.find(x=>x[0]===D.cc);if(!c||!d)return '';const n=D.cc==='IT'?d:d.replace(/^0+/,'');const t=c[1]+n;return n.length>=5&&t.length<=15?'+'+t:''}
 function phoneUI(box){
- const wrap=el('div','phonewrap'),row=el('div','phone'),btn=el('button','cc'),inp=el('input'),pop=el('div','pop'),sr=el('input'),ul=el('ul','clist');
- row.dir='ltr';btn.type='button';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');
- const lab=()=>{btn.replaceChildren();const c=CC.find(x=>x[0]===D.cc);if(c)btn.append(fl(c[0]),el('span',null,'+'+c[1]));else btn.append(el('span',null,T('phSelect')));btn.append(el('span',null,'▾'))};
- inp.type='tel';inp.value=D.pn;inp.maxLength=20;inp.autocomplete='tel-national';inp.inputMode='tel';inp.setAttribute('aria-labelledby','qh');
+ const s1=el('div','pstep p1'),s2=el('div','pstep'),btn=el('button','ccbig'),pop=el('div','pop'),sr=el('input'),ul=el('ul','clist');
+ const numrow=el('div','numrow'),pre=el('span','pre'),inp=el('input'),cover=el('div','cover'),prev=el('p','preview');
+ const head=(n,k)=>{const p=el('p','plabel');p.append(el('b','pn',n),el('span',null,T(k)));return p};
+ const cur=()=>CC.find(x=>x[0]===D.cc);
+ const showPrev=()=>{prev.replaceChildren();const p=fullPhone(inp.value);if(p){const b=el('bdi',null,p);b.dir='ltr';prev.append(T('phPreview')+' ',b)}};
+ const lab=()=>{btn.replaceChildren();const c=cur();
+  if(c)btn.append(fl(c[0]),el('span','nm',cname(c[0])),el('span','dl','+'+c[1]),el('span',null,'▾'));else btn.append(el('span','nm',T('phSelect')),el('span',null,'▾'));
+  btn.classList.toggle('need',!c);btn.classList.toggle('done',!!c);pre.textContent=c?'+'+c[1]:'+';inp.disabled=!c;s2.classList.toggle('locked',!c);showPrev()};
+ btn.type='button';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');
+ inp.type='tel';inp.value=D.pn;inp.maxLength=20;inp.autocomplete='tel-national';inp.inputMode='tel';inp.setAttribute('aria-labelledby','qh');inp.oninput=showPrev;
  pop.hidden=true;sr.type='search';sr.placeholder=T('phSearch');sr.setAttribute('aria-label',T('phSearch'));
  const close=()=>{pop.hidden=true;btn.setAttribute('aria-expanded','false')};
- const fill=()=>{const q=sr.value.trim().toLowerCase().replace(/^\+/,'');ul.replaceChildren();
-  CC.map(c=>[c,cname(c[0])]).sort((a,b)=>a[1].localeCompare(b[1],L)).filter(([c,n])=>!q||n.toLowerCase().includes(q)||c[0].toLowerCase()===q||c[1].startsWith(q)).forEach(([c,n])=>{
+ const fill=()=>{const q=sr.value.trim().toLowerCase().replace(/^\+/,''),g=guess();ul.replaceChildren();
+  CC.map(c=>[c,cname(c[0])]).sort((a,b)=>(b[0][0]===g)-(a[0][0]===g)||a[1].localeCompare(b[1],L)).filter(([c,n])=>!q||n.toLowerCase().includes(q)||c[0].toLowerCase()===q||c[1].startsWith(q)).forEach(([c,n])=>{
    const li=el('li'),b=el('button');b.type='button';b.append(fl(c[0]),el('span','nm',n),el('span','dl','+'+c[1]));b.onclick=()=>{D.cc=c[0];lab();close();inp.focus()};li.append(b);ul.append(li)})};
  const open=()=>{pop.hidden=false;btn.setAttribute('aria-expanded','true');sr.value='';fill();sr.focus()};
- btn.onclick=()=>pop.hidden?open():close();sr.oninput=fill;
+ btn.onclick=()=>pop.hidden?open():close();cover.onclick=open;sr.oninput=fill;
  sr.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const b=ul.querySelector('button');if(b)b.click()}};
  pop.addEventListener('keydown',e=>{if(e.key==='Escape'){close();btn.focus()}});
- lab();pop.append(sr,ul);row.append(btn,inp);wrap.append(row,pop);box.append(el('p','small',T('hPhone')),wrap);wrapRef=wrap;closePop=close;return inp}
+ numrow.append(pre,inp,cover);pop.append(sr,ul);s1.append(head('1','phStep1'),btn,pop);s2.append(head('2','phStep2'),numrow,prev);
+ box.append(el('p','small',T('hPhone')),s1,s2);lab();wrapRef=s1;closePop=close;
+ flashFn=()=>{btn.classList.remove('shake');void btn.offsetWidth;btn.classList.add('shake');btn.focus()};
+ setTimeout(()=>(cur()?inp:btn).focus(),0);return inp}
